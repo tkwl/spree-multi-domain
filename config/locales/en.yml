@@ -2,7 +2,6 @@ en:
   spree:
     back_to_store_list: Back To Store List
     default_currency: Default Currency
-	default_language: Default Language
     send_mail_as: Send Mail As
     logo: Logo
     payment_method: Payment Method
