@@ -22,3 +22,4 @@ en:
         description: "Store must match one from the list"
     store_rule:
       choose_stores: "Choose Stores"
+
