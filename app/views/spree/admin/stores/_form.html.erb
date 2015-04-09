@@ -1,4 +1,12 @@
 <div data-hook="admin_store_form_fields">
+  <div class="alpha four columns">
+    <%= f.field_container :name do %>
+      <%= f.label :name, Spree.t(:store_name) %><br />
+      <%= f.text_field :name, :class => 'fullwidth' %>
+      <%= error_message_on :store, :name %>
+    <% end %>
+  </div>
+
   <div class="four columns">
     <%= f.field_container :code do %>
       <%= f.label :code, Spree.t(:store_code) %><br />
@@ -50,33 +58,31 @@
     <% end %>
   </div>
 
-  <div class='row'>
-    <div class="alpha six columns">
-      <%= f.field_container :payment_methods do %>
-        <%= f.label :payment_methods, Spree.t(:payment_methods) %><br />
-        <% @payment_methods.each do |payment_method| %>
-          <label class="sub">
-            <%= check_box_tag 'store[payment_method_ids][]', payment_method.id, @store.payment_methods.include?(payment_method) %>
-          </label> &nbsp;
-          <%= "#{payment_method.name}" %>
-          <br>
-        <% end %>
-        <%= hidden_field_tag 'store[payment_method_ids][]', '' %>
+  <div class="alpha six columns">
+    <%= f.field_container :payment_methods do %>
+      <%= f.label :payment_methods, Spree.t(:payment_methods) %><br />
+      <% @payment_methods.each do |payment_method| %>
+        <label class="sub">
+          <%= check_box_tag 'store[payment_method_ids][]', payment_method.id, @store.payment_methods.include?(payment_method) %>
+        </label> &nbsp;
+        <%= payment_method.name %>
+        <br>
       <% end %>
-    </div>
+      <%= hidden_field_tag 'store[payment_method_ids][]', '' %>
+    <% end %>
+  </div>
 
-    <div class="omega six columns">
-      <%= f.field_container :shipping_methods do %>
-        <%= f.label :shipping_methods, Spree.t(:shipping_methods) %><br />
-        <% @shipping_methods.each do |shipping_method| %>
-          <label class="sub">
-            <%= check_box_tag 'store[shipping_method_ids][]', shipping_method.id, @store.shipping_methods.include?(shipping_method) %>
-          </label> &nbsp;
-          <%= shipping_method.name %>
-          <br>
-        <% end %>
-        <%= hidden_field_tag 'store[shipping_method_ids][]', '' %>
+  <div class="omega six columns">
+    <%= f.field_container :shipping_methods do %>
+      <%= f.label :shipping_methods, Spree.t(:shipping_methods) %><br />
+      <% @shipping_methods.each do |shipping_method| %>
+        <label class="sub">
+          <%= check_box_tag 'store[shipping_method_ids][]', shipping_method.id, @store.shipping_methods.include?(shipping_method) %>
+        </label> &nbsp;
+        <%= shipping_method.name %>
+        <br>
       <% end %>
-    </div>
+      <%= hidden_field_tag 'store[shipping_method_ids][]', '' %>
+    <% end %>
   </div>
 </div>
