@@ -18,10 +18,10 @@ Gem::Specification.new do |s|
   s.requirements << 'none'
 
   spree_version = '>= 3.1.0', '< 5.0'
-  s.add_dependency 'spree_core', version
-  s.add_dependency 'spree_backend', version
-  s.add_dependency 'spree_frontend', version
-  s.add_dependency 'spree_api', version
+  s.add_dependency 'spree_core', spree_version
+  s.add_dependency 'spree_backend', spree_version
+  s.add_dependency 'spree_frontend', spree_version
+  s.add_dependency 'spree_api', spree_version
 
   s.add_development_dependency 'capybara', '~> 1.1.4'
   s.add_development_dependency 'coffee-rails'
