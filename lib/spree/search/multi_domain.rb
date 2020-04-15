@@ -4,7 +4,7 @@ module Spree::Search
 
     def extended_base_scope
       base_scope = Spree::Product.spree_base_scopes.active
-      base_scope = base_scope.by_store(current_store_id) if current_store_id
+      base_scope = base_scope.by_store(current_store) if current_store
       base_scope = get_products_conditions_for(base_scope, keywords)
       base_scope = Spree::Dependencies.products_finder.constantize.new(
         scope: base_scope,
@@ -25,7 +25,7 @@ module Spree::Search
 
     def prepare(params)
       super
-      @properties[:current_store_id] = params[:current_store_id]
+      @properties[:current_store] = Spree::Store.find_by(id: params[:current_store_id])
     end
   end
 end
