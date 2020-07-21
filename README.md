@@ -23,10 +23,6 @@ a code of "alpha" you should store its default layout in app/views/spree/layouts
 
 3. Each product can be assigned to one or more stores.
 
-4. All orders are associated with the store / domain that they were placed on.
-
-5. Google analytics trackers can be associated with a store.
-
 ## Installation
 
 1. Add this extension to your Gemfile with this line:

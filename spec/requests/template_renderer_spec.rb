@@ -19,6 +19,7 @@ describe 'Template renderer with dynamic layouts' do
   end
 
   it 'should fall back to the default layout if none are found for the current store' do
+    skip if Spree.version.to_f > 3.7 # this doesn't make sense for Spree 4.x as there is always a current store
     allow(ApplicationController).to receive(:current_store).and_return(nil)
     get 'http://www.example.com'
 

@@ -52,14 +52,8 @@
 
     <div data-hook="admin_store_form_fields_right" class="col-md-6">
       <div data-hook="logo">
-        <% if Spree.version.to_f < 3.7 %>
-          <% if @store.logo.present? %>
-            <%= image_tag @store.logo.url %>
-          <% end %>
-        <% else %>
-          <% if @store.logo.attached? %>
-            <%= image_tag main_app.url_for(@store.logo.variant(resize: '250x250>')) %>
-          <% end %>
+        <% if @store.logo.attached? %>
+          <%= image_tag main_app.url_for(@store.logo.variant(resize: '250x250>')) %>
         <% end %>
         <%= f.field_container :logo, class: ['form-group'] do %>
           <%= f.label :logo, Spree.t(:logo) %><br />
