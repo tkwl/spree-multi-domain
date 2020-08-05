@@ -2,11 +2,20 @@ require 'spec_helper'
 
 describe Spree::ProductsController do
   let!(:product) { create(:product) }
-  let!(:store)   { create(:store) }
+  let!(:store)   { create(:store, code: 'test_store') }
+
+  before do
+    Spree::ProductsController.view_paths = [
+      ActionView::FixtureResolver.new(
+        "spree/layouts/#{store.code}/spree_application.html.erb" => 'Test store layout <%= yield %>',
+        'spree/products/show.html.erb' => 'Products show page'
+      )
+    ]
+  end
 
   describe 'on :show to a product without any stores' do
     it 'should raise ActiveRecord::RecordNotFound' do
-      expect { get :show, params: { id: product.to_param }}.to raise_error(ActiveRecord::RecordNotFound)
+      expect { get :show, params: { id: product.to_param } }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 
@@ -18,7 +27,7 @@ describe Spree::ProductsController do
     it 'should raise ActiveRecord::RecordNotFound' do
       allow(controller).to receive(:current_store).and_return(store_2)
 
-      expect { get :show, params: { id: product.to_param }}.to raise_error(ActiveRecord::RecordNotFound)
+      expect { get :show, params: { id: product.to_param } }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 
@@ -32,5 +41,4 @@ describe Spree::ProductsController do
       expect(response).to have_http_status(200)
     end
   end
-
 end

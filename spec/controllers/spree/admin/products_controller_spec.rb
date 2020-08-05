@@ -3,6 +3,17 @@ require 'spec_helper'
 describe Spree::Admin::ProductsController do
   stub_authorization!
 
+  let!(:test_store) { create(:store, code: 'test_store', default: true) }
+
+  before do
+    Spree::Admin::ProductsController.view_paths = [
+      ActionView::FixtureResolver.new(
+        "spree/layouts/#{test_store.code}/admin.html.erb" => 'Test store layout <%= yield %>',
+        'spree/admin/products/index.html.erb' => 'Admin products index page'
+      )
+    ]
+  end
+
   describe 'on :index' do
     it 'renders index' do
       get :index
