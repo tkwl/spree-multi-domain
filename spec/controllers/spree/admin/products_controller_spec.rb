@@ -8,6 +8,7 @@ describe Spree::Admin::ProductsController do
   before do
     Spree::Admin::ProductsController.view_paths = [
       ActionView::FixtureResolver.new(
+        'spree/layouts/admin.html.erb' => 'Default admin layout',
         "spree/layouts/#{test_store.code}/admin.html.erb" => 'Test store layout <%= yield %>',
         'spree/admin/products/index.html.erb' => 'Admin products index page'
       )
@@ -71,6 +72,16 @@ describe Spree::Admin::ProductsController do
 
         expect(product.reload.store_ids).to eq(store_ids)
       end
+    end
+  end
+
+  describe 'when current store has no custom admin layout' do
+    let!(:admin_store) { create(:store, code: 'admin_store', url: 'admin.example.com', default: true) }
+
+    it 'renders default admin layout' do
+      get :index
+
+      expect(response.body).to eq('Default admin layout')
     end
   end
 end
