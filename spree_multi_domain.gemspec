@@ -1,4 +1,5 @@
 # encoding: UTF-8
+
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'spree_multi_domain'
@@ -17,9 +18,9 @@ Gem::Specification.new do |s|
   s.requirements << 'none'
 
   version = '>= 4.2.0.alpha', '< 5.0'
+  s.add_dependency 'deface'
   s.add_dependency 'spree', version
   s.add_dependency 'spree_extension'
-  s.add_dependency 'deface'
 
   s.add_development_dependency 'spree_dev_tools'
 end

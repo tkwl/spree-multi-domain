@@ -1,7 +1,7 @@
 module Spree
   module TaxonDecorator
     def self.prepended(base)
-      base.scope :by_store, -> (store) { joins(:taxonomy).merge(Spree::Taxonomy.by_store(store)) }
+      base.scope :by_store, ->(store_id) { joins(:taxonomy).merge(Spree::Taxonomy.by_store(store_id)) }
       base.extend ClassMethods
     end
 

@@ -19,7 +19,7 @@ module SpreeMultiDomain
     end
 
     def taxons_for_search
-      taxons = @taxon && @taxon.parent ? @taxon.parent.children : Spree::Taxon.roots
+      taxons = @taxon&.parent ? @taxon.parent.children : Spree::Taxon.roots
       if current_store.present?
         taxons.joins(:taxonomy).where('spree_taxonomies.store_id = ?', current_store.id)
       else

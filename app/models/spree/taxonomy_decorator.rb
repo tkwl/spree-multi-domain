@@ -3,7 +3,7 @@ module Spree
     def self.prepended(base)
       base.belongs_to :store
 
-      base.scope :by_store, -> (store) { where(store_id: store) }
+      base.scope :by_store, ->(store_id) { where(store_id: store_id) }
     end
   end
 end
