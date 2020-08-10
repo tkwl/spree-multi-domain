@@ -22,3 +22,7 @@ de:
         description: Store muss aus der Liste sein
     store_rule:
       choose_stores: Stores auswählen
+  activerecord:
+    errors:
+      messages:
+        invalid_content_type: hat ungültig content_type

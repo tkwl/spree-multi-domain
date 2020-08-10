@@ -1,7 +1,16 @@
-Spree::Taxon.class_eval do
-  scope :by_store, -> (store) { joins(:taxonomy).merge(Spree::Taxonomy.by_store(store)) }
+module Spree
+  module TaxonDecorator
+    def self.prepended(base)
+      base.scope :by_store, ->(store_id) { joins(:taxonomy).merge(Spree::Taxonomy.by_store(store_id)) }
+      base.extend ClassMethods
+    end
 
-  def self.find_by_store_id_and_permalink!(store_id, permalink)
-    by_store(store_id).where(permalink: permalink).first!
+    module ClassMethods
+      def find_by_store_id_and_permalink!(store_id, permalink)
+        by_store(store_id).where(permalink: permalink).first!
+      end
+    end
   end
 end
+
+::Spree::Taxon.prepend(Spree::TaxonDecorator)

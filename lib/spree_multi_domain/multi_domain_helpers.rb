@@ -5,13 +5,7 @@ module SpreeMultiDomain
       receiver.send :helper, 'spree/taxons'
 
       receiver.send :before_action, :add_current_store_id_to_params
-      receiver.send :helper_method, :current_store
-      receiver.send :helper_method, :current_tracker
       receiver.send :helper_method, :taxons_for_search
-    end
-
-    def current_tracker
-      @current_tracker ||= Spree::Tracker.current(request.env['SERVER_NAME'])
     end
 
     def get_taxonomies
@@ -25,7 +19,7 @@ module SpreeMultiDomain
     end
 
     def taxons_for_search
-      taxons = @taxon && @taxon.parent ? @taxon.parent.children : Spree::Taxon.roots
+      taxons = @taxon&.parent ? @taxon.parent.children : Spree::Taxon.roots
       if current_store.present?
         taxons.joins(:taxonomy).where('spree_taxonomies.store_id = ?', current_store.id)
       else

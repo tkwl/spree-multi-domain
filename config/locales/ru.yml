@@ -7,3 +7,8 @@ ru:
   manage_stores: "Управление магазинами и привязка доменов"
   editing_store: "Редактирование магазина"
   default: "По умолчанию"
+  activerecord:
+    errors:
+      messages:
+        invalid_content_type: имеет недействительный content_type
+

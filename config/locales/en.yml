@@ -22,3 +22,7 @@ en:
         description: "Store must match one from the list"
     store_rule:
       choose_stores: "Choose Stores"
+  activerecord:
+    errors:
+      messages:
+        invalid_content_type: has invalid content_type

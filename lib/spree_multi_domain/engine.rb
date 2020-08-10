@@ -2,67 +2,64 @@ module SpreeMultiDomain
   class Engine < Rails::Engine
     engine_name 'spree_multi_domain'
 
-    config.autoload_paths += %W(#{config.root}/lib)
+    config.autoload_paths += %W[#{config.root}/lib]
+
+    DEFAULT_LAYOUT = 'spree/layouts/spree_application'.freeze
+    @current_store_code = nil
 
     def self.activate
-      ['app', 'lib'].each do |dir|
-        Dir.glob(File.join(File.dirname(__FILE__), "../../#{dir}/**/*_decorator*.rb")) do |c|
+      %w[app lib].each do |dir|
+        Dir.glob(File.join(File.dirname(__FILE__), "../../#{dir}/**/*_decorator*.rb")).sort.each do |c|
           Rails.application.config.cache_classes ? require(c) : load(c)
         end
       end
 
       Spree::Config.searcher_class = Spree::Search::MultiDomain
-      ApplicationController.send :include, SpreeMultiDomain::MultiDomainHelpers
+      ApplicationController.include SpreeMultiDomain::MultiDomainHelpers
     end
 
-    config.to_prepare &method(:activate).to_proc
+    config.to_prepare(&method(:activate).to_proc)
 
-    initializer "templates with dynamic layouts" do |app|
+    initializer 'templates with dynamic layouts' do
       ActionView::TemplateRenderer.prepend(
         Module.new do
-          def find_layout(layout, locals, formats=[])
-            store_layout = layout
-            if @view.respond_to?(:current_store) && @view.current_store && !@view.controller.is_a?(Spree::Admin::BaseController) && !@view.controller.is_a?(Spree::Api::BaseController)
-              store_layout = if layout.is_a?(String)
-                layout.gsub("layouts/", "layouts/#{@view.current_store.code}/")
-              else
-                layout.call.try(:gsub, "layouts/", "layouts/#{@view.current_store.code}/")
-              end
-            end
+          def resolve_layout(layout, keys, formats)
+            details = @details.dup
+            details[:formats] = formats
 
-            begin
-
-              if Rails.gem_version >= Gem::Version.new('5.x') # hack to make it work with rails 4.x and 5.x
-                super(store_layout, locals, formats)
-              else
-                super(store_layout, locals, *formats)
+            case layout
+            when String
+              begin
+                if layout.start_with?('/')
+                  ActiveSupport::Deprecation.warn 'Rendering layouts from an absolute path is deprecated.'
+                  @lookup_context.with_fallbacks.find_template(layout, nil, false, [], details)
+                else
+                  @lookup_context.find_template(layout, nil, false, [], details)
+                end
+              rescue ActionView::MissingTemplate
+                if @current_store_code
+                  layout.slice!("/#{@current_store_code}")
+                  @lookup_context.with_fallbacks.find_template(layout, nil, false, [], details)
+                else
+                  @lookup_context.with_fallbacks.find_template(DEFAULT_LAYOUT, nil, false, [], details)
+                end
               end
-
-            rescue ::ActionView::MissingTemplate
-              if Rails.gem_version >= Gem::Version.new('5.x') # hack to make it work with rails 4.x and 5.x
-                super(layout, locals, formats)
-              else
-                super(layout, locals, *formats)
-              end
+            when Proc
+              resolve_layout(layout.call(@lookup_context, formats), keys, formats)
+            else
+              layout
             end
           end
-        end
-      )
-    end
 
-    initializer "current order decoration" do |app|
-      require 'spree/core/controller_helpers/order'
-      ::Spree::Core::ControllerHelpers::Order.prepend(
-        Module.new do
-          def current_order(options = {})
-            options[:create_order_if_necessary] ||= false
-            super(options)
+          def render_template(view, template, layout_name, locals)
+            @current_store_code = view.current_store.code
+            store_layout = if layout_name.is_a?(String)
+                             layout_name.gsub('layouts/', "layouts/#{view.current_store.code}/")
+                           else
+                             layout_name.call.try(:gsub, 'layouts/', "layouts/#{view.current_store.code}/")
+                           end
 
-            if @current_order and current_store and @current_order.store.blank?
-              @current_order.update_attribute(:store_id, current_store.id)
-            end
-
-            @current_order
+            super(view, template, store_layout, locals)
           end
         end
       )
