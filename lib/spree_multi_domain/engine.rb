@@ -53,7 +53,9 @@ module SpreeMultiDomain
 
           def render_template(view, template, layout_name, locals)
             @current_store_code = view.current_store.code
-            store_layout = if layout_name.is_a?(String)
+            store_layout = if layout_name.nil?
+                             nil
+                           elsif layout_name.is_a?(String)
                              layout_name.gsub('layouts/', "layouts/#{view.current_store.code}/")
                            else
                              layout_name.call.try(:gsub, 'layouts/', "layouts/#{view.current_store.code}/")
