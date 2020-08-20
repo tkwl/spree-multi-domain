@@ -14,7 +14,7 @@ module SpreeMultiDomain
         end
       end
 
-      Spree::Config.searcher_class = Spree::Search::MultiDomain
+      Spree::Config.searcher_class ||= Spree::Search::MultiDomain
       ApplicationController.include SpreeMultiDomain::MultiDomainHelpers
     end
 
