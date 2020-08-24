@@ -1,19 +1,31 @@
 module Spree::Search
   class MultiDomain < Spree::Core::Search::Base
-    def get_base_scope
-      base_scope = @cached_product_group ? @cached_product_group.products.active : Spree::Product.active
-      base_scope = base_scope.by_store(current_store_id) if current_store_id
-      base_scope = base_scope.in_taxon(taxon) unless taxon.blank?
+    protected
 
-      base_scope = get_products_conditions_for(base_scope, keywords) unless keywords.blank?
-
+    def extended_base_scope
+      base_scope = Spree::Product.spree_base_scopes.active
+      base_scope = base_scope.by_store(current_store) if current_store
+      base_scope = get_products_conditions_for(base_scope, keywords)
+      base_scope = Spree::Dependencies.products_finder.constantize.new(
+        scope: base_scope,
+        params: {
+          filter: {
+            price: price,
+            option_value_ids: option_value_ids,
+            taxons: taxon&.id
+          },
+          sort_by: sort_by
+        },
+        current_currency: current_currency
+      ).execute
       base_scope = add_search_scopes(base_scope)
+      base_scope = add_eagerload_scopes(base_scope)
       base_scope
     end
 
     def prepare(params)
       super
-      @properties[:current_store_id] = params[:current_store_id]
+      @properties[:current_store] = Spree::Store.find_by(id: params[:current_store_id])
     end
   end
 end
