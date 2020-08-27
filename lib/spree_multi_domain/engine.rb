@@ -52,13 +52,21 @@ module SpreeMultiDomain
           end
 
           def render_template(view, template, layout_name, locals)
-            @current_store_code = view.current_store.code
+            @current_store_code = if view.respond_to?(:current_store)
+                                    view.current_store.code
+                                  else
+                                    Spree::Store.default.code
+                                  end
             store_layout = if layout_name.nil?
                              nil
                            elsif layout_name.is_a?(String)
-                             layout_name.gsub('layouts/', "layouts/#{view.current_store.code}/")
+                             layout_name.gsub('layouts/', "layouts/#{@current_store_code}/")
                            else
-                             layout_name.call.try(:gsub, 'layouts/', "layouts/#{view.current_store.code}/")
+                             begin
+                               layout_name.call.try(:gsub, 'layouts/', "layouts/#{@current_store_code}/")
+                             rescue NoMethodError
+                               layout_name
+                             end
                            end
 
             super(view, template, store_layout, locals)
