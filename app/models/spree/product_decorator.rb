@@ -1,7 +1,9 @@
 module Spree
   module ProductDecorator
     def self.prepended(base)
-      base.has_and_belongs_to_many :stores, join_table: 'spree_products_stores'
+      base.has_many :store_products, class_name: 'Spree::StoreProduct', dependent: :destroy
+      base.has_many :stores, through: :store_products, class_name: 'Spree::Store'
+
       base.scope :by_store, ->(store) { joins(:stores).where(spree_products_stores: { store_id: store.id }) }
     end
   end
