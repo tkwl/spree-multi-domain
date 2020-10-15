@@ -1,4 +1,4 @@
-class StoreIdForTaxonomies < ActiveRecord::Migration
+class StoreIdForTaxonomies < SpreeExtension::Migration[4.2]
   def self.up
     if table_exists?('taxonomies')
       add_column :taxonomies, :store_id, :integer

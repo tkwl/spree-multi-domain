@@ -1,6 +1,23 @@
-<p>
-  <%= f.label :stores, Spree.t(:stores)%><br />
-  <% Spree::Store.all.each do |store| %>
-    <%= check_box_tag "product[store_ids][]", store.id, @product.stores.include?(store) %> <%= store.name %>
+<p data-hook="admin_product_form_stores" class="omega two columns">
+  <%= f.field_container :stores, class: ['form-group'] do %>
+    <%= f.label :store_ids, Spree.t(:stores) %>
+    <% if can? :modify, Spree::Store %>
+      <%= f.hidden_field :store_ids, value: @product.store_ids.join(',') %>
+    <% elsif @product.stores.any? %>
+      <ul class="text_list">
+        <% @product.stores.each do |store| %>
+          <li><%= store.name %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <div class="alert alert-info">
+        <%= Spree.t(:no_resource_found, resource: :stores) %>
+      </div>
+    <% end %>
   <% end %>
 </p>
+
+<script type="text/javascript" charset="utf-8">
+  Spree.routes.store_search = '<%= spree.admin_stores_path(format: :json) %>';
+  $('#product_store_ids').storeAutocomplete();
+</script>

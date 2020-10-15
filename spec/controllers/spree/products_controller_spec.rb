@@ -1,49 +1,44 @@
 require 'spec_helper'
 
 describe Spree::ProductsController do
+  let!(:product) { create(:product) }
+  let!(:store)   { create(:store, code: 'test_store') }
 
-  let!(:product) { FactoryGirl.create(:product) }
+  before do
+    Spree::ProductsController.view_paths = [
+      ActionView::FixtureResolver.new(
+        "spree/layouts/#{store.code}/spree_application.html.erb" => 'Test store layout <%= yield %>',
+        'spree/products/show.html.erb' => 'Products show page'
+      )
+    ]
+  end
 
   describe 'on :show to a product without any stores' do
-    let!(:store) { FactoryGirl.create(:store) }
-
-    it 'should return 404' do
-      spree_get :show, :id => product.to_param
-
-      response.response_code.should == 404
+    it 'should raise ActiveRecord::RecordNotFound' do
+      expect { get :show, params: { id: product.to_param } }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 
   # Regression test for #75
   describe 'on :show to a product in the wrong store' do
-    let!(:store_1) { FactoryGirl.create(:store) }
-    let!(:store_2) { FactoryGirl.create(:store) }
+    let!(:store_2) { create(:store) }
+    before { product.stores << store }
 
-    before(:each) do
-      product.stores << store_1
-    end
+    it 'should raise ActiveRecord::RecordNotFound' do
+      allow(controller).to receive(:current_store).and_return(store_2)
 
-    it 'should return 404' do
-      controller.stub(:current_store => store_2)
-      spree_get :show, :id => product.to_param
-
-      response.response_code.should == 404
+      expect { get :show, params: { id: product.to_param } }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 
   describe 'on :show to a product w/ store' do
-    let!(:store) { FactoryGirl.create(:store) }
-
-    before(:each) do
-      product.stores << store
-    end
+    before { product.stores << store }
 
     it 'should return 200' do
-      controller.stub(:current_store => store)
-      spree_get :show, :id => product.to_param
+      allow(controller).to receive(:current_store).and_return(store)
+      get :show, params: { id: product.to_param }
 
-      response.response_code.should == 200
+      expect(response).to have_http_status(200)
     end
   end
-
 end

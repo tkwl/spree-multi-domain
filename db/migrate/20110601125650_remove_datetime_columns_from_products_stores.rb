@@ -1,4 +1,4 @@
-class RemoveDatetimeColumnsFromProductsStores < ActiveRecord::Migration
+class RemoveDatetimeColumnsFromProductsStores < SpreeExtension::Migration[4.2]
   def self.up
     change_table :products_stores do |t|
       t.remove :created_at, :updated_at
@@ -7,7 +7,7 @@ class RemoveDatetimeColumnsFromProductsStores < ActiveRecord::Migration
 
   def self.down
     change_table :products_stores do |t|
-      t.timestamps
+      t.timestamps null: false
     end
   end
 end

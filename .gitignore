@@ -29,3 +29,8 @@ public/template_google_base.xml
 coverage/*
 .bundle
 Gemfile.lock
+.rvmrc
+.ruby-version
+.ruby-gemset
+gemfiles/*.gemfile.lock
+*.gem

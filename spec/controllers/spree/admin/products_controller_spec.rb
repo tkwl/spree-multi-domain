@@ -3,37 +3,85 @@ require 'spec_helper'
 describe Spree::Admin::ProductsController do
   stub_authorization!
 
-  describe "on :index" do
-    it "renders index" do
-      spree_get :index
-      response.should be_success
+  let!(:test_store) { create(:store, code: 'test_store', default: true) }
+
+  before do
+    Spree::Admin::ProductsController.view_paths = [
+      ActionView::FixtureResolver.new(
+        'spree/layouts/admin.html.erb' => 'Default admin layout',
+        "spree/layouts/#{test_store.code}/admin.html.erb" => 'Test store layout <%= yield %>',
+        'spree/admin/products/index.html.erb' => 'Admin products index page'
+      )
+    ]
+  end
+
+  describe 'on :index' do
+    it 'renders index' do
+      get :index
+
+      expect(response).to have_http_status(200)
     end
   end
 
-  describe "on a PUT to :update" do
-    before(:each) do
-      @product = FactoryGirl.create(:product)
-      @store = FactoryGirl.create(:store)
-    end
+  describe 'on a PUT to :update' do
+    let!(:product) { create(:product) }
+    let!(:store)   { create(:store) }
 
-    describe "when no stores are selected" do
-      it "clears stores if they previously existed" do
-        @product.stores << @store
+    describe 'when no stores are selected' do
+      it 'clears stores if they previously existed' do
+        product.stores << store
 
-        spree_put :update, :id => @product.to_param,
-                      :product => {:name => @product.name}
+        put :update, params: {
+          id: product.to_param,
+          product: {
+            name: product.name,
+            store_ids: ''
+          }
+        }
 
-        @product.reload.store_ids.should be_empty
+        expect(product.reload.store_ids).to be_empty
       end
     end
 
-    describe "when a store is selected" do
-      it "clears stores" do
-        spree_put :update, :id => @product.to_param,
-                      :product => {:name => @product.name, :store_ids => [@store.id]}
+    describe 'when a store is selected' do
+      it 'clears stores' do
+        put :update, params: {
+          id: product.to_param,
+          product: {
+            name: product.name,
+            store_ids: store.id
+          }
+        }
 
-        @product.reload.store_ids.should == [@store.id]
+        expect(product.reload.store_ids).to include(store.id)
       end
+    end
+
+    describe 'when multiple stores are selected' do
+      it 'clears stores' do
+        stores = create_list(:store, 3)
+        store_ids = stores.map(&:id)
+
+        put :update, params: {
+          id: product.to_param,
+          product: {
+            name: product.name,
+            store_ids: store_ids.join(',')
+          }
+        }
+
+        expect(product.reload.store_ids).to eq(store_ids)
+      end
+    end
+  end
+
+  describe 'when current store has no custom admin layout' do
+    let!(:admin_store) { create(:store, code: 'admin_store', url: 'admin.example.com', default: true) }
+
+    it 'renders default admin layout' do
+      get :index
+
+      expect(response.body).to eq('Default admin layout')
     end
   end
 end

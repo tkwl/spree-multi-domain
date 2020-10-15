@@ -7,3 +7,7 @@ fr:
   manage_stores: Configurer les boutiques et les domaines associés
   editing_store: Modifier une boutique
   default: Defaut
+  activerecord:
+    errors:
+      messages:
+        invalid_content_type: a invalide content_type

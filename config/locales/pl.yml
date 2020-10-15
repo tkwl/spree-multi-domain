@@ -7,4 +7,8 @@ pl:
   manage_stores: "Skonfiguruj wiele sklepów i powiązane z nimi domeny"
   editing_store: "Edcja sklepu"
   default: "Domyślny"
+  activerecord:
+    errors:
+      messages:
+        invalid_content_type: ma niewłaściwy content_type
 
